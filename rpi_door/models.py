@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #        Copyright (C) 2013 Randy Topliffe, Shawn Wilson
-#        randy???@who_knows_where.com
+#        randytopliffe@gmail.com
 #        shawn@ch2a.ca
 #
 #        
@@ -20,6 +20,7 @@
 #
 #   This program was written by Randy Topliffe with comments added by
 #   Shawn Wilson who was trying to understand what the heck Randy did.
+#
 
 
 #
