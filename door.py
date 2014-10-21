@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
-from drivers import RPi
-from database import localSQLite
+from libaccess.drivers import RPi
+from libaccess.database import localSQLite
+from libaccess import doorController
 
 
 if __name__ == "__main__":
