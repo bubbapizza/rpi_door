@@ -38,9 +38,9 @@ class database():
          yield session
          session.commit()
 
-      except:
+      except Exception as error:
          session.rollback()
-         raise
+         raise error
 
       finally:
          session.close()

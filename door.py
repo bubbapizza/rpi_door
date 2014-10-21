@@ -1,11 +1,13 @@
 #!/usr/bin/python
-from rpi_door.drivers.GPIO import RPiDoor
 
-rpi_door = RPiDoor(**{
-    "sqlalchemy.url": "sqlite:///database.db",
-    "sqlalchemy.echo": False,
-    "sqlalchemy.pool_recycle": 3600
-})
+from drivers import RPi
+from database import localSQLite
+
 
 if __name__ == "__main__":
-    rpi_door.main_loop()
+
+   # Initialize the door controller and its options.
+   dc = doorController(driver=RPi, db=localSQLite)
+
+   # Fire up the door controller.
+   dc.main_loop()

@@ -5,7 +5,7 @@
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import *
-from generic import database
+from helper import database
 
 #
 # These parameters get passed to the database wrapper so SQLAlchemy 
