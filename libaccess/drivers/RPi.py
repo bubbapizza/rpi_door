@@ -16,9 +16,9 @@ class SerialConnectionError(Exception):
         return repr(self.value)
 
 
-class API():
+class rrgbdl():
     """ This is an rfid/red/green/buzzer/door/lock (RRGBDL) interface for 
-    a door controller using Raspberry Pi GPIO pins."""
+    a door controller using the Raspberry Pi serial port and GPIO pins."""
 
 
     def __init__(self, 
