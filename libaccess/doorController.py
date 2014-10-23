@@ -11,9 +11,9 @@ class doorController():
 
     code_re = re.compile("\\n(.+)\\r", re.UNICODE)
 
-    def __init__(self, driver, db):
+    def __init__(self, device, db):
 
-        self.driver = driver
+        self.device = device
         self.db = db
 
         # Makes sure the state of the door is locked when first started. This
@@ -21,33 +21,31 @@ class doorController():
         # want to door to lock when the power comes back on. Trying to remember
         # the door's state in should events would be difficult and not worth
         # the effort.
-        self.driver.lock()
-        self.toggle_red_led(on=True)
-
-    @property
-    def data(self):
-        return self._data
-
-    @data.setter
-    def data(self, data):
-        """Check to see if the data to be set is greater than 41. If so it sets
-        its self to an empty bytearray
-        """
-        if len(data) > 41:
-            self._data = b""
-        else:
-            self._data = data
-        return self._data
+        self.device.lock()
+        self.device.toggle_red_led(on=True)
 
     def main_loop(self):
         while True:
-            data = self.read_RFID()
+
+            # Wait for someone to swipe an RFID card.
+            data = self.device.read_RFID()
+
+            # If we got a valid authentication, then unlock the door.
             if data and self.validate_key_code(data):
-                self.toggle_red_led()
+                
+                # Let the user know we have a good swipe.
+                self.toggle_red_led(on=False)
                 self.toggle_green_led(on=True)
+                self.buzz(5000)
+
+                # Unlock the door.
                 self.unlock()
+
                 sleep(1)
-                self.toggle_red_led(on=True)
+
+                # Put the swipe card lights back to defaults, then wait
+                # for someone to press the lock button.
+                self.toggle_red_led()
                 self.toggle_green_led()
                 self.check_for_lock_request()
 
@@ -67,25 +65,9 @@ class doorController():
             return match.groups()[0]
         return None
 
-    def read_RFID(self):
-        """reads one byte at a time until it finds a key code
-        """
-        # flushes to remove any remaining bytes
-        self.serial_conn.flushInput()
-        self.data = b""
-
-        while True:
-            while self.serial_conn.inWaiting() > 0:
-                self.data += self.serial_conn.read(1)
-
-                if self.data:
-                    str_data = str(self.data, 'utf-8')
-                    code = self.find_key_code(str_data)
-                    if code:
-                        return code
 
     def check_for_lock_request(self):
-        """continuously checks to see if the state is true. If so it calls the
+        """Continuously check to see if the state is true. If so, call the
         `lock` method
         """
         while True:

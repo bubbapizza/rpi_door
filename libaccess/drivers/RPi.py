@@ -82,13 +82,39 @@ class rrgbdl():
         else:
             GPIO.output(self.GREEN, GPIO.LOW)
 
-    def buzz(self, freq=3000):
-       """Buzz a piezo buzzer at a certain frequency."""
- 
-       null
+    def buzz(self, freq=3000, duration=1):
+        """Buzz a piezo buzzer at a given frequency in Hz and a given
+        duration in seconds."""
+  
+        null
 
-    def read_rfid(self, timeout=5):
-       """Read in an RFID card and timeout after the given number of
-       seconds."""
- 
-       null
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, data):
+        """Check to see if the data to be set is greater than 41. If so,
+        it sets itself to an empty bytearray.
+        """
+        if len(data) > 41:
+            self._data = b""
+        else:
+            self._data = data
+        return self._data
+
+
+    def read_RFID(self, timeout=5):
+        """Read in an RFID card from the serial port and timeout after 
+        the given number of seconds if we don't get any data."""
+
+        # flushes to remove any remaining bytes
+        self.serial_conn.flushInput()
+        self.data = b""
+
+        # Read in all the data we have waiting on the serial buffer.
+        while self.serial_conn.inWaiting() > 0:
+            self.data += self.serial_conn.read(1)
+
+        return str(self.data, 'utf-8')
