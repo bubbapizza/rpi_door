@@ -1,10 +1,32 @@
-# Copyright (C) 2013 Windsor Hackforge
+#!/usr/bin/python
 #
-# This module is part of RPi Door and is released under
-# the MIT License: http://www.opensource.org/licenses/mit-license.php
+#        Copyright (C) 2014 Shawn Wilson
+#        shawn@ch2a.ca
+#        
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+"""This is a hardware device driver for the door controller using a
+Raspberry Pi's GPIO pins and serial port.  
+
+It implements an RRGBDL (rfid/red/green/buzzer/door/lock-button)
+hardware API that the door controller uses.  The RRGBDL API has nothing
+to do with anything and is just an arbitrary API that I made up."""
+
 
 import RPi.GPIO as GPIO
 import serial
+import time
 
 
 class SerialConnectionError(Exception):
@@ -23,12 +45,12 @@ class rrgbdl():
 
     def __init__(self, 
                  port="/dev/ttyAMA0", 
-                 baudrate=2400):
-                 red = 24
-                 green = 23
-                 buzzer = 18
-                 door = 25
-                 button = 17)
+                 baudrate=2400,
+                 red = 24,
+                 green = 23,
+                 buzzer = 18,
+                 door = 25,
+                 button = 17):
 
         #
         # Set up the hardware details for the controller interface.
@@ -86,7 +108,22 @@ class rrgbdl():
         """Buzz a piezo buzzer at a given frequency in Hz and a given
         duration in seconds."""
   
-        null
+        # The period (in seconds) of a sound wave is the inverse of 
+        # frequency in Hz.
+        period = 1.0 / freq
+
+        # Set the wait time to half of the period since we have to click
+        # the buzzer on, then off.
+        wait_time = period / 2
+
+        # The number of waves to produce depends on the duration.
+        total_cycles = freq * duration
+
+        for i in xrange(total_cycles):
+            GPIO.output(self.BELL, GPIO.HIGH)
+            time.sleep(wait_time)
+            GPIO.OUTPUT(self.BELL, GPIO.LOW)
+            time.sleep(wait_time)
 
 
     @property
