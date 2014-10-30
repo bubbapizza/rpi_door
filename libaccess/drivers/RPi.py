@@ -28,6 +28,14 @@ import RPi.GPIO as GPIO
 import serial
 import time
 
+#### CONSTANTS ####
+
+# These values are specifically for the Parallax 28140 serial
+# RFID reader as described at http://www.parallax.com/product/28140
+RFID_NUM_BYTES = 10
+RFID_START_BYTE = 10
+RFID_STOP_BYTE = 13
+
 
 class SerialConnectionError(Exception):
 
@@ -126,32 +134,54 @@ class rrgbdl():
             time.sleep(wait_time)
 
 
-    @property
-    def data(self):
-        return self._data
-
-    @data.setter
-    def data(self, data):
-        """Check to see if the data to be set is greater than 41. If so,
-        it sets itself to an empty bytearray.
-        """
-        if len(data) > 41:
-            self._data = b""
-        else:
-            self._data = data
-        return self._data
-
-
     def read_RFID(self, timeout=5):
         """Read in an RFID card from the serial port and timeout after 
         the given number of seconds if we don't get any data."""
 
-        # flushes to remove any remaining bytes
-        self.serial_conn.flushInput()
-        self.data = b""
+        self.lastRFID = None
+        rfidCode = ""
+        startTime = time.now()
 
-        # Read in all the data we have waiting on the serial buffer.
-        while self.serial_conn.inWaiting() > 0:
-            self.data += self.serial_conn.read(1)
+        while startTime + timeout > time.now():
+   
+           # Keep reading till we run out of bytes or we hit the
+           # timeout period. 
+           while self.serial_conn.inWaiting() > 0 and
+              startTime + timeout <= time.now():
+   
+              rfidChr = self.serial_conn.read(1)
+  
+              # If we got a start byte, then start storing the code.
+              if ord(rfidChr) == RFID_START_BYTE:
+                 buildCode = True
+                 rfidCode = ""
+
+  
+              # If we got a stop byte, then make sure we have enough
+              # characters to build a code.  Otherwise, we have junk.
+              elif ord(rfidChr) == RFID_STOP_BYTE:
+                 if buildCode == True and len(rfidCode) == RFID_NUM_BYTES:
+                    self.lastRFID = rfidCode
+
+                 buildCode = False
+                 rfidCode = ""
+
+
+              # We got a regular character so build the code. 
+              elif buildCode:
+
+                 # Check to make sure we still have a valid code. 
+                 if len(rfidCode) < RFID_NUM_BYTES:
+                    rfidCode += rfidChr
+ 
+                 # The code is too long, we have garbage somewhere. 
+                 else
+                    buildCode = False
+                    rfidCode = ""
+
+        if self.lastRFID != None:
+           return self.lastRFID 
+
+               
 
         return str(self.data, 'utf-8')
