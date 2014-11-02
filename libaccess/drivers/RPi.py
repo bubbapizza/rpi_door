@@ -140,48 +140,45 @@ class rrgbdl():
 
         self.lastRFID = None
         rfidCode = ""
-        startTime = time.now()
+        startTime = time.time()
 
-        while startTime + timeout > time.now():
+        while startTime + timeout > time.time():
    
-           # Keep reading till we run out of bytes or we hit the
-           # timeout period. 
-           while self.serial_conn.inWaiting() > 0 and
-              startTime + timeout <= time.now():
+            # Keep reading till we run out of bytes or we hit the
+            # timeout period. 
+            while self.serial_conn.inWaiting() > 0 and
+                    startTime + timeout <= time.time():
+    
+                rfidChr = self.serial_conn.read(1)
+    
+                # If we got a start byte, then start storing the code.
+                if ord(rfidChr) == RFID_START_BYTE:
+                    buildCode = True
+                    rfidCode = ""
+  
+    
+                # If we got a stop byte, then make sure we have enough
+                # characters to build a code.  Otherwise, we have junk.
+                elif ord(rfidChr) == RFID_STOP_BYTE:
+                    if buildCode == True and 
+                            len(rfidCode) == RFID_NUM_BYTES:
+                        self.lastRFID = rfidCode
    
-              rfidChr = self.serial_conn.read(1)
-  
-              # If we got a start byte, then start storing the code.
-              if ord(rfidChr) == RFID_START_BYTE:
-                 buildCode = True
-                 rfidCode = ""
-
-  
-              # If we got a stop byte, then make sure we have enough
-              # characters to build a code.  Otherwise, we have junk.
-              elif ord(rfidChr) == RFID_STOP_BYTE:
-                 if buildCode == True and len(rfidCode) == RFID_NUM_BYTES:
-                    self.lastRFID = rfidCode
-
-                 buildCode = False
-                 rfidCode = ""
-
-
-              # We got a regular character so build the code. 
-              elif buildCode:
-
-                 # Check to make sure we still have a valid code. 
-                 if len(rfidCode) < RFID_NUM_BYTES:
-                    rfidCode += rfidChr
- 
-                 # The code is too long, we have garbage somewhere. 
-                 else
                     buildCode = False
                     rfidCode = ""
+  
+  
+                # We got a regular character so build the code. 
+                elif buildCode:
+  
+                   # Check to make sure we still have a valid code. 
+                   if len(rfidCode) < RFID_NUM_BYTES:
+                       rfidCode += rfidChr
+   
+                   # The code is too long, we have garbage somewhere. 
+                   else
+                       buildCode = False
+                       rfidCode = ""
 
         if self.lastRFID != None:
            return self.lastRFID 
-
-               
-
-        return str(self.data, 'utf-8')
