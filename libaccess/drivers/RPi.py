@@ -90,15 +90,22 @@ class rrgbdl():
 
 
     def poll_push_to_lock(self):
-        # pin 17 returns 1 when not pressed and 0 when pressed
+        # The lock button returns 1 when not pressed and 0 when pressed
         # ie: switch is "normally closed"
-        return not GPIO.input(self.BUTTON)
+        return True if not GPIO.input(self.BUTTON) else False
+
+    def poll_door_lock(self):
+        """Check to see if the door is locked or not.  Return True or 
+        False"""
+        return True if GPIO.input(self.DOOR) else False
+
 
     def unlock(self):
         GPIO.output(self.DOOR, GPIO.LOW)
 
     def lock(self):
         GPIO.output(self.DOOR, GPIO.HIGH)
+
 
     def toggle_red_led(self, on=False):
         if on:
@@ -111,6 +118,7 @@ class rrgbdl():
             GPIO.output(self.GREEN, GPIO.HIGH)
         else:
             GPIO.output(self.GREEN, GPIO.LOW)
+
 
     def buzz(self, freq=3000, duration=1):
         """Buzz a piezo buzzer at a given frequency in Hz and a given
