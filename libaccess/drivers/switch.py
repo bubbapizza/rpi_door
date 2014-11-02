@@ -1,6 +1,5 @@
 # This is a module for abstracting the behaviour of plain-old every 
-# day hardware interfaces have been used forever.  For example, switches, 
-# knobs, buttons, etc.
+# switches like light switches.
 
 ### CONSTANTS ###
 ON = 1
