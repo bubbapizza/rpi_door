@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #        Copyright (C) 2014 Shawn Wilson
-#        shawn@ch2a.ca
+#        shawn@rj11.ca
 #        
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -24,9 +24,10 @@ hardware API that the door controller uses.  The RRGBDL API has nothing
 to do with anything and is just an arbitrary API that I made up."""
 
 
-import RPi.GPIO as GPIO
 import serial
 import time
+import RPi.GPIO as GPIO
+import switch
 
 #### CONSTANTS ####
 
@@ -65,11 +66,14 @@ class rrgbdl():
         #
         self.SERIAL_PORT = port
         self.SERIAL_BPS = baudrate
-        self.RED = red
-        self.GREEN = green
         self.BELL = buzzer
-        self.DOOR = door
-        self.BUTTON = button
+
+        # Set the switches.
+        self.red = switch.OnOff(red)
+        self.green = switch.OnOff(green)
+        self.door = switch.OnOff(door)
+        self.button = switch.basic(button)
+
       
         #
         # Initialize the hardware.

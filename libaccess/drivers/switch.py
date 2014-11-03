@@ -1,6 +1,22 @@
-# This is a module for abstracting the behaviour of plain-old every 
-# day switches like light switches, but controlled by a pin on a 
-# Raspberry Pi..
+#
+#        Copyright (C) 2014 Shawn Wilson
+#        shawn@ch2a.ca
+#        
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""This is a module for abstracting the behaviour of plain-old every 
+day switches which may or not be controllable via a Raspberry Pi."""
+
 
 import RPi.GPIO as GPIO
 
@@ -13,12 +29,12 @@ class basic():
     can only check the status of the switch.  The Raspberry Pi can't set 
     the switch on or off, only the user can."""
 
-    def __init__(self, pin=None, state=OFF):
+    def __init__(self, pin=None):
         """Initialize an on/off switch.  By default, the starting state
         is off."""
 
         self._pin = pin
-        self._state = state
+        self._state = OFF
  
         if pin is not None:
             # initialize the pin and set the state accordingly.
