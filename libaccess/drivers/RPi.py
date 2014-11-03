@@ -74,18 +74,10 @@ class rrgbdl():
         self.door = switch.OnOff(door)
         self.button = switch.basic(button)
 
-      
         #
         # Initialize the hardware.
         #
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
-
-        GPIO.setup(self.GREEN, GPIO.OUT)
-        GPIO.setup(self.RED, GPIO.OUT)
-        GPIO.setup(self.DOOR, GPIO.OUT)
         GPIO.setup(self.BELL, GPIO.OUT)
-        GPIO.setup(self.BUTTON, GPIO.IN)
 
         self.serial_conn = serial.Serial(port, baudrate, timeout=0)
 
@@ -96,7 +88,7 @@ class rrgbdl():
     def poll_push_to_lock(self):
         # The lock button returns 1 when not pressed and 0 when pressed
         # ie: switch is "normally closed"
-        return True if not GPIO.input(self.BUTTON) else False
+        return True if self.button.state == switch.ON else False
 
     def poll_door_lock(self):
         """Check to see if the door is locked or not.  Return True or 
