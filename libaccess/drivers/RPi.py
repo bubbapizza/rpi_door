@@ -37,6 +37,20 @@ RFID_NUM_BYTES = 10
 RFID_START_BYTE = 10
 RFID_STOP_BYTE = 13
 
+## Set up default values for the RPi ##
+
+# Broadcom GPIO pin numbers for switches/buzzer.
+RED = 24
+GREEN = 23
+DOOR = 25
+BELL = 18
+LOCK_BUTTON = 17
+
+# Serial port settings
+PORT = "/dev/ttyAMA0"
+BAUD_RATE = 2400
+
+
 
 class SerialConnectionError(Exception):
 
@@ -48,18 +62,19 @@ class SerialConnectionError(Exception):
 
 
 class rrgbdl():
-    """ This is an rfid/red/green/buzzer/door/lock (RRGBDL) interface for 
-    a door controller using the Raspberry Pi serial port and GPIO pins."""
+    """ This is an rfid/red/green/buzzer/door/lock-button (RRGBDL) 
+    interface for a door controller using the Raspberry Pi serial port 
+    and GPIO pins."""
 
 
     def __init__(self, 
-                 port="/dev/ttyAMA0", 
-                 baudrate=2400,
-                 red = 24,
-                 green = 23,
-                 buzzer = 18,
-                 door = 25,
-                 button = 17):
+                 port=PORT, 
+                 baudrate=BAUD_RATE,
+                 red = RED,
+                 green = GREEN,
+                 buzzer = BELL,
+                 door = DOOR,
+                 button = LOCK_BUTTON):
 
         #
         # Set up the hardware details for the controller interface.
@@ -73,11 +88,7 @@ class rrgbdl():
         self.green = switch.OnOff(green)
         self.door = switch.OnOff(door)
         self.button = switch.basic(button)
-
-        #
-        # Initialize the hardware.
-        #
-        GPIO.setup(self.BELL, GPIO.OUT)
+        self.buzzer = switch.OnOff(bell)
 
         self.serial_conn = serial.Serial(port, baudrate, timeout=0)
 
@@ -86,34 +97,27 @@ class rrgbdl():
 
 
     def poll_push_to_lock(self):
-        # The lock button returns 1 when not pressed and 0 when pressed
+        """Check to see if the push-to-lock button has been pressed."""
+
+        # The lock button has been pressed if the switch goes off.
         # ie: switch is "normally closed"
-        return True if self.button.state == switch.ON else False
+        return True if self.button.state == switch.OFF else False
 
     def poll_door_lock(self):
-        """Check to see if the door is locked or not.  Return True or 
-        False"""
-        return True if GPIO.input(self.DOOR) else False
+        """Check to see if the door is locked or not."""
+
+        # If the door switch is on, the door is locked.
+        # ie: switch is "normally open"
+        return True if self.door.state == switch.ON else False
 
 
     def unlock(self):
-        GPIO.output(self.DOOR, GPIO.LOW)
+        """Unlock the door."""
+        self.door.flick(state=switch.ON)
 
     def lock(self):
-        GPIO.output(self.DOOR, GPIO.HIGH)
-
-
-    def toggle_red_led(self, on=False):
-        if on:
-            GPIO.output(self.RED, GPIO.HIGH)
-        else:
-            GPIO.output(self.RED, GPIO.LOW)
-
-    def toggle_green_led(self, on=False):
-        if on:
-            GPIO.output(self.GREEN, GPIO.HIGH)
-        else:
-            GPIO.output(self.GREEN, GPIO.LOW)
+        """Lock the door"""
+        self.door.flick(state=switch.OFF)
 
 
     def buzz(self, freq=3000, duration=1):
@@ -132,9 +136,9 @@ class rrgbdl():
         total_cycles = freq * duration
 
         for i in xrange(total_cycles):
-            GPIO.output(self.BELL, GPIO.HIGH)
+            self.buzzer.flick(state=switch.ON)
             time.sleep(wait_time)
-            GPIO.OUTPUT(self.BELL, GPIO.LOW)
+            self.buzzer.flick(state=switch.OFF)
             time.sleep(wait_time)
 
 
