@@ -49,6 +49,7 @@ LOCK_BUTTON = 17
 # Serial port settings
 PORT = "/dev/ttyAMA0"
 BAUD_RATE = 2400
+RFID_DEFAULT_TIMEOUT = 5
 
 
 
@@ -142,7 +143,7 @@ class rrgbdl():
             time.sleep(wait_time)
 
 
-    def read_RFID(self, timeout=5):
+    def read_RFID(self, timeout=RFID_DEFAULT_TIMEOUT):
         """Read in an RFID card from the serial port and timeout after 
         the given number of seconds if we don't get any data."""
 
@@ -150,6 +151,12 @@ class rrgbdl():
         rfidCode = ""
         startTime = time.time()
 
+        # Remove any garbage in the serial buffer and start from 
+        # scratch.
+        self.serial_conn.flushInput()
+
+
+        ### READ LOOP ###
         while startTime + timeout > time.time():
    
             # Keep reading till we run out of bytes or we hit the
@@ -170,7 +177,10 @@ class rrgbdl():
                 elif ord(rfidChr) == RFID_STOP_BYTE:
                     if buildCode == True and 
                             len(rfidCode) == RFID_NUM_BYTES:
+
+                        # We have a valid code!!!! Return it!!
                         self.lastRFID = rfidCode
+                        return self.lastRFID
    
                     buildCode = False
                     rfidCode = ""
@@ -187,6 +197,3 @@ class rrgbdl():
                    else
                        buildCode = False
                        rfidCode = ""
-
-        if self.lastRFID != None:
-           return self.lastRFID 
