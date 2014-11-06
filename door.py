@@ -1,19 +1,30 @@
 #!/usr/bin/python
 
-from libaccess.rrgbdl import RPi
+from libaccess.drivers import RPi
 from libaccess.database import localSQLite
 from libaccess import doorController
 
-# Parameters for an RPi interface.
+
+#### CONSTANTS ####
+
+# Set up specifics for the hackforge door controller.
+
 SQLITE_DB = "./database.db"
 
+class hackf_door(doorController, localSQLite):
+    """This is the hackforge door controller.  It uses a Raspberry
+    Pi for the RRGBDL device, along with a local SQLite database for
+    authenticating RFID cards."""
+
+    def __init__(self):
+        """Set up the RPi device and the authentication database."""
+
+       raise NotImplementedError("Not implemented")
+
+
+
 # When run by itself, just call the main loop of the door controller. 
-# This is where the logic is stored for how the user swipes in, what
-# to do once a valid card is detected, etc.
 if __name__ == "__main__":
 
-   # Initialize the door controller and its options.
-   dc = doorController(device=RPi.rrgbdl(), db=localSQLite(SQLITE_DB))
-
-   # Fire up the door controller.
+   dc = hackf_door()
    dc.main_loop()
