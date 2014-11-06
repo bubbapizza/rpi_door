@@ -3,18 +3,23 @@
 # This module is part of RPi Door and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
-import re
 from time import sleep
+
+#### CONSTANTS ####
+
+# Set how many seconds to wait before locking the door after the 
+# push-to-lock button has been pressed.
+LOCK_WAIT_TIME = 5
 
 
 class doorController():
+    """This is a door controller class that uses devices that are 
+    RRGBDL compatible.  To initialize it, you must pass it the RRGBDL
+    device."""
 
-    code_re = re.compile("\\n(.+)\\r", re.UNICODE)
-
-    def __init__(self, device, db):
+    def __init__(self, device):
 
         self.device = device
-        self.db = db
 
         # Makes sure the state of the door is locked when first started. This
         # is mostly for security reasons. For example, if the power goes out we
@@ -31,66 +36,40 @@ class doorController():
             data = self.device.read_RFID()
 
             # If we got a valid authentication, then unlock the door.
-            if data and self.validate_key_code(data):
+            if self.validate_key_code(data):
                 
                 # Let the user know we have a good swipe.
-                self.toggle_red_led(on=False)
-                self.toggle_green_led(on=True)
-                self.buzz(5000)
+                self.device.toggle_red_led(on=False)
+                self.device.toggle_green_led(on=True)
+                self.device.buzz(5000)
 
                 # Unlock the door.
-                self.unlock()
+                self.device.unlock()
 
                 sleep(1)
 
                 # Put the swipe card lights back to defaults, then wait
                 # for someone to press the lock button.
-                self.toggle_red_led()
-                self.toggle_green_led()
+                self.device.toggle_red_led()
+                self.device.toggle_green_led()
                 self.check_for_lock_request()
-
-    def find_key_code(self, data):
-        """ Checks the given string to see if it contains a code (valid or not)
-
-        Args:
-            data (str): data to be checked
-
-        Returns:
-            None or str::
-                None if there isn't a match or the code if there is a match
-
-        """
-        match = re.match(self.code_re, data)
-        if match:
-            return match.groups()[0]
-        return None
 
 
     def check_for_lock_request(self):
-        """Continuously check to see if the state is true. If so, call the
-        `lock` method
-        """
+        """Continuously check to see if the push-to-lock button has
+        been pressed.  If so it calls the `lock` method"""
         while True:
             sleep(0.1)
-            if self.get_state():
-                sleep(5)
-                self.lock()
+            if self.device.poll_push_to_lock():
+                sleep(LOCK_WAIT_TIME)
+                self.device.lock()
                 break
 
-    def get_state(self):
-        raise NotImplementedError("Not implemented.")
 
     def validate_key_code(self, data):
-        raise NotImplementedError("Not implemented.")
+        """This method would normally be overridden with a custom
+        authentication mechanism.  As it is now, it just returns
+        True no matter what is passed to it."""
+        
+        return True
 
-    def unlock(self):
-        raise NotImplementedError("Not implemented.")
-
-    def lock(self):
-        raise NotImplementedError("Not implemented.")
-
-    def toggle_red_led(self, on=False):
-        raise NotImplementedError("Not implemented.")
-
-    def toggle_green_led(self, on=False):
-        raise NotImplementedError("Not implemented.")

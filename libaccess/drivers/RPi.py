@@ -82,14 +82,13 @@ class rrgbdl():
         #
         self.SERIAL_PORT = port
         self.SERIAL_BPS = baudrate
-        self.BELL = buzzer
 
         # Set the switches.
-        self.red = switch.OnOff(red)
-        self.green = switch.OnOff(green)
-        self.door = switch.OnOff(door)
-        self.button = switch.basic(button)
-        self.buzzer = switch.OnOff(bell)
+        self._red = switch.OnOff(red)
+        self._green = switch.OnOff(green)
+        self._door = switch.OnOff(door)
+        self._button = switch.basic(button)
+        self._buzzer = switch.OnOff(buzzer)
 
         self.serial_conn = serial.Serial(port, baudrate, timeout=0)
 
@@ -102,23 +101,41 @@ class rrgbdl():
 
         # The lock button has been pressed if the switch goes off.
         # ie: switch is "normally closed"
-        return True if self.button.state == switch.OFF else False
+        return True if self._button.state == switch.OFF else False
 
     def poll_door_lock(self):
         """Check to see if the door is locked or not."""
 
         # If the door switch is on, the door is locked.
         # ie: switch is "normally open"
-        return True if self.door.state == switch.ON else False
+        return True if self._door.state == switch.ON else False
 
 
     def unlock(self):
         """Unlock the door."""
-        self.door.flick(state=switch.ON)
+        self._door.flick(state=switch.ON)
 
     def lock(self):
         """Lock the door"""
-        self.door.flick(state=switch.OFF)
+        self._door.flick(state=switch.OFF)
+
+    def toggle_red_led(self, on=None):
+        """Toggle the red LED on, off or just toggle."""
+        if on == None:
+            self._red.flick()
+        elif on:
+            self._red.flick(state=switch.ON)
+        else
+            self._red.flick(state.switch.OFF)
+
+    def toggle_green_led(self, on=None):
+        """Toggle the green LED on, off or just toggle."""
+        if on == None:
+            self._green.flick()
+        elif on:
+            self._green.flick(state=switch.ON)
+        else
+            self._green.flick(state.switch.OFF)
 
 
     def buzz(self, freq=3000, duration=1):
@@ -137,9 +154,9 @@ class rrgbdl():
         total_cycles = freq * duration
 
         for i in xrange(total_cycles):
-            self.buzzer.flick(state=switch.ON)
+            self._buzzer.flick(state=switch.ON)
             time.sleep(wait_time)
-            self.buzzer.flick(state=switch.OFF)
+            self._buzzer.flick(state=switch.OFF)
             time.sleep(wait_time)
 
 
