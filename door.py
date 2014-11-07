@@ -7,9 +7,21 @@ from libaccess import doorController
 
 #### CONSTANTS ####
 
-# Set up specifics for the hackforge door controller.
+# Broadcom GPIO pin numbers for switches/buzzer.
+RED = 24
+GREEN = 23
+DOOR = 25
+BELL = 18
+LOCK_BUTTON = 17
 
+# Serial port settings
+PORT = "/dev/ttyAMA0"
+BAUD_RATE = 2400
+RFID_DEFAULT_TIMEOUT = 5
+
+# Here's the database where user credentials are stored.
 SQLITE_DB = "./database.db"
+
 
 class hackf_door(doorController, localSQLite):
     """This is the hackforge door controller.  It uses a Raspberry
@@ -19,7 +31,21 @@ class hackf_door(doorController, localSQLite):
     def __init__(self):
         """Set up the RPi device and the authentication database."""
 
-       raise NotImplementedError("Not implemented")
+       # Create an RRGBDL device for controlling the door and initialize
+       # the doorController class.
+       hackf_dev = RPi.rrgbdl(
+           port=PORT, 
+           baudrate=BAUD_RATE,
+           red = RED,
+           green = GREEN,
+           buzzer = BELL,
+           door = DOOR,
+           button = LOCK_BUTTON
+       )
+       doorController.__init__(self, hackf_dev)
+
+       # Set up a database for the door controller.
+       localSQLite.__init__(self, SQLITE_DB)
 
 
 
