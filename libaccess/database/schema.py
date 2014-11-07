@@ -7,27 +7,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import *
 from helper import database
 
-#
-# These parameters get passed to the database wrapper so SQLAlchemy 
-# knows the physical parameters of how/where the data is stored.
-# 
-DATABASE_PARAMETERS = {
-    "sqlalchemy.url": "sqlite:///database.db",
-    "sqlalchemy.echo": False,
-    "sqlalchemy.pool_recycle": 3600
-}
-
-
-####### AUTHENTICATION DATABASE #######
-
-class dbAuth(database):
-   """This is the authentication database for the door controller."""
-
-   def __init__(self):
-      """Initialize the authentication database."""
-      
-      super(database, self).__init__(DATABASE_PARAMETERS)
-
 
 ########## SCHEMA OBJECTS ###########
 
