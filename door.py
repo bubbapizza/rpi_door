@@ -23,7 +23,7 @@ RFID_DEFAULT_TIMEOUT = 5
 SQLITE_DB = "./database.db"
 
 
-class hackf_door(doorController, localSQLite):
+class hackf_door(doorController.standalone):
     """This is the hackforge door controller.  It uses a Raspberry
     Pi for the RRGBDL device, along with a local SQLite database for
     authenticating RFID cards."""
@@ -31,9 +31,9 @@ class hackf_door(doorController, localSQLite):
     def __init__(self):
         """Set up the RPi device and the authentication database."""
 
-       # Create an RRGBDL device for controlling the door and initialize
-       # the doorController class.
-       hackf_dev = RPi.rrgbdl(
+       # Set up the details of the door controller device and the 
+       # database.
+       hackf_device = RPi.rrgbdl(
            port=PORT, 
            baudrate=BAUD_RATE,
            red = RED,
@@ -42,14 +42,17 @@ class hackf_door(doorController, localSQLite):
            door = DOOR,
            button = LOCK_BUTTON
        )
-       doorController.__init__(self, hackf_dev)
-
-       # Set up a database for the door controller.
-       localSQLite.__init__(self, SQLITE_DB)
+       hackf_database = localSQLite(SQLITE_DB)
 
 
+       # Initialize the standalone door controller.
+       super().__init__(hackf_device, hackf_database)
 
-# When run by itself, just call the main loop of the door controller. 
+
+
+
+# When run by itself, just call the main loop of the hackforge
+# door controller.
 if __name__ == "__main__":
 
    dc = hackf_door()

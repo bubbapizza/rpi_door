@@ -12,7 +12,7 @@ from time import sleep
 LOCK_WAIT_TIME = 5
 
 
-class doorController():
+class stub():
     """This is a door controller class that uses devices that are 
     RRGBDL compatible.  To initialize it, you must pass it the RRGBDL
     device."""
@@ -72,4 +72,23 @@ class doorController():
         True no matter what is passed to it."""
         
         return True
+
+
+
+class standalone(stub):
+    """This door controller has all the basic door controls along with a 
+    standalone user database used for key validation."""
+
+    def __init__(self, device, database):
+        """To initialize the stadalone door controller, you must pass
+        it a libaccess database object along w/ the device."""
+
+        super().__init__(device)
+        self.db = database
+
+
+    def validate_key_code(self, data):
+        """Check the key code against the libaccess user database."""
+
+        self.db.checkAuth(data)
 
