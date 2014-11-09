@@ -42,7 +42,7 @@ RFID_STOP_BYTE = 13
 RED = 24
 GREEN = 23
 DOOR = 25
-BELL = 18
+BELL = 21
 LOCK_BUTTON = 17
 
 # Serial port settings
@@ -165,6 +165,7 @@ class rrgbdl():
 
         self.lastRFID = None
         rfidCode = ""
+        buildCode = False
         startTime = time.time()
 
         # Remove any garbage in the serial buffer and start from 
@@ -174,12 +175,10 @@ class rrgbdl():
 
         ### READ LOOP ###
         while startTime + timeout > time.time():
-   
-            # Keep reading till we run out of bytes or we hit the
-            # timeout period. 
-            while self.serial_conn.inWaiting() > 0 and \
-                    startTime + timeout <= time.time():
-    
+
+            # Keep reading till we run out of bytes.
+            while self.serial_conn.inWaiting() > 0: 
+
                 rfidChr = self.serial_conn.read(1)
     
                 # If we got a start byte, then start storing the code.
