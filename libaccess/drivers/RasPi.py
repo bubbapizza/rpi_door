@@ -125,7 +125,7 @@ class rrgbdl():
             self._red.flick()
         elif on:
             self._red.flick(state=switch.ON)
-        else
+        else:
             self._red.flick(state.switch.OFF)
 
     def toggle_green_led(self, on=None):
@@ -134,7 +134,7 @@ class rrgbdl():
             self._green.flick()
         elif on:
             self._green.flick(state=switch.ON)
-        else
+        else:
             self._green.flick(state.switch.OFF)
 
 
@@ -178,7 +178,7 @@ class rrgbdl():
    
             # Keep reading till we run out of bytes or we hit the
             # timeout period. 
-            while self.serial_conn.inWaiting() > 0 and
+            while self.serial_conn.inWaiting() > 0 and \
                     startTime + timeout <= time.time():
     
                 rfidChr = self.serial_conn.read(1)
@@ -192,7 +192,7 @@ class rrgbdl():
                 # If we got a stop byte, then make sure we have enough
                 # characters to build a code.  Otherwise, we have junk.
                 elif ord(rfidChr) == RFID_STOP_BYTE:
-                    if buildCode == True and 
+                    if buildCode == True and \
                             len(rfidCode) == RFID_NUM_BYTES:
 
                         # We have a valid code!!!! Return it!!
@@ -211,6 +211,6 @@ class rrgbdl():
                        rfidCode += rfidChr
    
                    # The code is too long, we have garbage somewhere. 
-                   else
+                   else:
                        buildCode = False
                        rfidCode = ""
