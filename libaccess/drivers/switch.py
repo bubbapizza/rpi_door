@@ -24,21 +24,32 @@ import RPi.GPIO as GPIO
 ON = 1
 OFF = 0
 
+# Set GPIO mode to Broadcom
+GPIO.setmode(GPIO.BCM)
+
 class basic():
     """Used for controlling push-button-type switches.  These ones, you
     can only check the status of the switch.  The Raspberry Pi can't set 
     the switch on or off, only the user can."""
 
-    def __init__(self, pin=None):
+    def __init__(self, pin):
         """Initialize an on/off switch.  By default, the starting state
         is off."""
 
         self._pin = pin
         self._state = OFF
  
-        if pin is not None:
-            # initialize the pin and set the state accordingly.
-            GPIO.setup(self._pin, GPIO.IN)
+        # Initialize the pin.
+        self.reset()
+
+
+    def reset(self):
+        """Initialize the RPi GPIO pin to be in input mode.  Basic 
+        switches are external manual switches and are read-only."""
+
+        GPIO.cleanup(self._pin)
+        GPIO.setup(self._pin, GPIO.IN)
+
 
     @property
     def state(self):
@@ -55,16 +66,12 @@ class OnOff(basic):
     """Used for switches that the RPi can control.  The user may set 
     them in real life, but we can change them also via code."""
 
-    def __init__(self, pin=None, state=OFF):
-        """Initialize an on/off switch.  By default, the starting state
-        is off."""
+    def reset(self):
+        """Initialize the RPi GPIO pin to be in output mode.  On-Off 
+        switches are controlled by the RPi itself."""
 
-        self._pin = pin
-        self._state = state
- 
-        if pin is not None:
-            # initialize the pin and set the state accordingly.
-            GPIO.setup(self._pin, GPIO.OUT)
+        GPIO.cleanup(self._pin)
+        GPIO.setup(self._pin, GPIO.OUT)
 
 
     def flick(self, state=None):
@@ -76,7 +83,7 @@ class OnOff(basic):
         if state is None:
             if self.state == ON:
                 GPIO.output(self._pin, GPIO.LOW)    
-            elif self.state = OFF:
+            elif self.state == OFF:
                 GPIO.output(self._pin, GPIO.HIGH)
 
         # If a state was explicitly specified, set it. 

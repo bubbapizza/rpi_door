@@ -26,7 +26,6 @@ to do with anything and is just an arbitrary API that I made up."""
 
 import serial
 import time
-import RPi.GPIO as GPIO
 import switch
 
 #### CONSTANTS ####
@@ -113,11 +112,11 @@ class rrgbdl():
 
     def unlock(self):
         """Unlock the door."""
-        self._door.flick(state=switch.ON)
+        self._door.flick(state=switch.OFF)
 
     def lock(self):
         """Lock the door"""
-        self._door.flick(state=switch.OFF)
+        self._door.flick(state=switch.ON)
 
     def toggle_red_led(self, on=None):
         """Toggle the red LED on, off or just toggle."""
@@ -126,7 +125,7 @@ class rrgbdl():
         elif on:
             self._red.flick(state=switch.ON)
         else:
-            self._red.flick(state.switch.OFF)
+            self._red.flick(state=switch.OFF)
 
     def toggle_green_led(self, on=None):
         """Toggle the green LED on, off or just toggle."""
@@ -135,7 +134,7 @@ class rrgbdl():
         elif on:
             self._green.flick(state=switch.ON)
         else:
-            self._green.flick(state.switch.OFF)
+            self._green.flick(state=switch.OFF)
 
 
     def buzz(self, freq=3000, duration=1):
