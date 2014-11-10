@@ -1,6 +1,6 @@
 #
 #        Copyright (C) 2014 Shawn Wilson
-#        shawn@ch2a.ca
+#        shawn@rj11.ca
 #        
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
