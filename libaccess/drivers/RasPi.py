@@ -42,7 +42,7 @@ RFID_STOP_BYTE = 13
 RED = 24
 GREEN = 23
 DOOR = 25
-BELL = 21
+BELL = 27  # For RPi rev 1, pin is 21
 LOCK_BUTTON = 17
 
 # Serial port settings
@@ -137,9 +137,10 @@ class rrgbdl():
             self._green.flick(state=switch.OFF)
 
 
-    def buzz(self, freq=3000, duration=1):
+    def buzz(self, freq=261, duration=1):
         """Buzz a piezo buzzer at a given frequency in Hz and a given
-        duration in seconds."""
+        duration in seconds.  The buzz frequency defaults to 261 Hz
+        which is middle C on a piano."""
   
         # The period (in seconds) of a sound wave is the inverse of 
         # frequency in Hz.
@@ -150,7 +151,7 @@ class rrgbdl():
         wait_time = period / 2
 
         # The number of waves to produce depends on the duration.
-        total_cycles = freq * duration
+        total_cycles = int(freq * duration)
 
         for i in xrange(total_cycles):
             self._buzzer.flick(state=switch.ON)

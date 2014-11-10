@@ -41,10 +41,10 @@ class stub():
                 # Let the user know we have a good swipe.
                 self.device.toggle_red_led(on=False)
                 self.device.toggle_green_led(on=True)
-                self.device.buzz(5000)
 
                 # Unlock the door.
                 self.device.unlock()
+                self.device.buzz()
 
                 sleep(1)
 
