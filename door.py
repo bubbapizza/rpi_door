@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
 from libaccess.drivers import RPi
-from libaccess.database import localSQLite
-from libaccess import doorController
+from libaccess import database, doorController
 
 
 #### CONSTANTS ####
@@ -42,7 +41,7 @@ class hackf_door(doorController.standalone):
            door = DOOR,
            button = LOCK_BUTTON
        )
-       hackf_database = localSQLite(SQLITE_DB)
+       hackf_database = database.SQLite(SQLITE_DB)
 
 
        # Initialize the standalone door controller.
