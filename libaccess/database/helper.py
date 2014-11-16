@@ -1,17 +1,18 @@
-from sqlalchemy import engine_from_config
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
 
 
 ###### GENERIC DATABASE WRAPPER #######
 
-class database():
+class database(object):
    """This is a wrapper class for SQLAlchemy databases.  It makes it 
       easier to do atomic transactions using a 'with' statement."""
 
-   def __init__(self, **kwargs):
+   def __init__(self, uri, **kwargs):
       """Initialize the database engine."""
 
-      self.engine = engine_from_config(kwargs, echo=False)
+      self.engine = create_engine(uri, **kwargs)
       self.genSession = sessionmaker(bind=self.engine)
 
       # Create the database if it doesn't already exist.

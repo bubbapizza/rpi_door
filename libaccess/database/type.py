@@ -9,13 +9,14 @@ import helper
 class doorControllerDB(helper.database):
     """This class adds special functions to the SQL database."""
 
-    def __init__(self, DATABASE_PARAMETERS=None):
+    def __init__(self, uri=None, **kwargs):
         """The generic door controller database, just uses a SQL Alchemy
         memory database."""
 
-        if DATABASE_PARAMETERS is None:
-            DATABASE_PARAMETERS = { "sqlalchemy.url": "sqlite:///" }
-        helper.database.__init__(self, DATABASE_PARAMETERS)
+        if not uri:
+            helper.database.__init__(self, "sqlite:///", **kwargs)
+        else:
+            helper.database.__init__(self, uri, **kwargs)
         
 
     def validate_key_code(self, data):
@@ -29,16 +30,6 @@ class doorControllerDB(helper.database):
         return False
 
 
-    def create_user(self, data):
-        """Create a user account.  You must pass a dictionary with
-        the user column data."""
-
-        user = User(**data)
-        with self.transaction() as trans:
-            trans.add(user)
-
-
-
 ####### SQLITE DATABASE #######
 
 class SQLite(doorControllerDB):
@@ -47,13 +38,10 @@ class SQLite(doorControllerDB):
     def __init__(self, filename):
         """All we need is the filename for a SQLite database."""
 
-        DATABASE_PARAMETERS = {
-            "sqlalchemy.url": "sqlite:///" + filename,
-            "sqlalchemy.echo": False,
-            "sqlalchemy.pool_recycle": 3600
-        }
-        
-        doorControllerDB.__init__(self, DATABASE_PARAMETERS)
+        doorControllerDB.__init__(self, "sqlite:///" + filename,
+            echo = False,
+            pool_recycle = 3600
+        )
 
 
 ####### MYSQL DATABASE #######
@@ -71,10 +59,8 @@ class mySQL(doorControllerDB):
          """To initialize a mySQL database, we need hostname, TCP 
          port, and some user credentials."""
  
-         DATABASE_PARAMETERS = {
-             "sqlalchemy.url": "mysql://%s/%s@%s:%n/%s" % \
-                 (user, passwd, host, port, dbname)
-         }
+         uri = "mysql://%s/%s@%s:%n/%s" % \
+             (user, passwd, host, port, dbname)
          
-         doorControllerDB.__init__(self, DATABASE_PARAMETERS)
+         doorControllerDB.__init__(self, uri)
  
