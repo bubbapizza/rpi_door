@@ -1,3 +1,2 @@
-from schema import User, KeyCode
+import schema
 from type import SQLite, mySQL
-

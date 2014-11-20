@@ -6,7 +6,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import *
 from sqlalchemy.orm import *
-from helper import database
 
 
 ########## SCHEMA OBJECTS ###########
