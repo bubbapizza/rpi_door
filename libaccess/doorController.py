@@ -106,5 +106,5 @@ class standalone(stub):
     def validate_key_code(self, data):
         """Check the key code against the libaccess user database."""
 
-        self.db.checkAuth(data)
+        self.db.validate_key_code(data)
 

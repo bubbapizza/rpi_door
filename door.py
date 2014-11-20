@@ -6,17 +6,9 @@ from libaccess import database, doorController
 
 #### CONSTANTS ####
 
-# Broadcom GPIO pin numbers for switches/buzzer.
-RED = 24
-GREEN = 23
-DOOR = 25
-BELL = 18
-LOCK_BUTTON = 17
-
-# Serial port settings
-PORT = "/dev/ttyAMA0"
-BAUD_RATE = 2400
-RFID_DEFAULT_TIMEOUT = 5
+# Override the buzzer pin for the RPi since we're using a rev2 RPi.
+# For all the other RPi driver settings, just use the defaults.
+RPI_REV2_BELL = 27
 
 # Here's the database where user credentials are stored.
 SQLITE_DB = "./database.db"
@@ -32,21 +24,11 @@ class hackf_door(doorController.standalone):
 
        # Set up the details of the door controller device and the 
        # database.
-       hackf_device = RPi.rrgbdl(
-           port=PORT, 
-           baudrate=BAUD_RATE,
-           red = RED,
-           green = GREEN,
-           buzzer = BELL,
-           door = DOOR,
-           button = LOCK_BUTTON
-       )
+       hackf_device = RPi.rrgbdl(buzzer = RPI_REV2_BELL)
        hackf_database = database.SQLite(SQLITE_DB)
 
-
        # Initialize the standalone door controller.
-       super().__init__(hackf_device, hackf_database)
-
+       doorController.standalone.__init__(hackf_device, hackf_database)
 
 
 

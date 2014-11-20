@@ -42,7 +42,7 @@ RFID_STOP_BYTE = 13
 RED = 24
 GREEN = 23
 DOOR = 25
-BELL = 27  # For RPi rev 1, pin is 21
+BELL = 21  # For RPi rev 1, pin is 21
 LOCK_BUTTON = 17
 
 # Serial port settings
