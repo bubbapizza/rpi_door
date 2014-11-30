@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from libaccess.drivers import RPi
+from libaccess.drivers import RasPi
 from libaccess import database, doorController
 
 
@@ -20,15 +20,16 @@ class hackf_door(doorController.standalone):
     authenticating RFID cards."""
 
     def __init__(self):
-        """Set up the RPi device and the authentication database."""
+       """Set up the RPi device and the authentication database."""
 
        # Set up the details of the door controller device and the 
        # database.
-       hackf_device = RPi.rrgbdl(buzzer = RPI_REV2_BELL)
+       hackf_device = RasPi.rrgbdl(buzzer = RPI_REV2_BELL)
        hackf_database = database.SQLite(SQLITE_DB)
 
        # Initialize the standalone door controller.
-       doorController.standalone.__init__(hackf_device, hackf_database)
+       doorController.standalone.__init__(
+           self, hackf_device, hackf_database)
 
 
 
@@ -36,5 +37,5 @@ class hackf_door(doorController.standalone):
 # door controller.
 if __name__ == "__main__":
 
-   dc = hackf_door()
-   dc.main_loop()
+    dc = hackf_door()
+    dc.main_loop()

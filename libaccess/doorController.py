@@ -39,17 +39,33 @@ class stub():
 
         # Makes sure the state of the door is locked when first started. This
         # is mostly for security reasons. For example, if the power goes out we
-        # want to door to lock when the power comes back on. Trying to remember
-        # the door's state in should events would be difficult and not worth
-        # the effort.
+        # want to door to lock when the power comes back on.
+        self.reset()
+
+
+    def reset(self):
+        """Reset the door controller to it's initial state which is
+        door locked, red on, green off."""
+
         self.device.lock()
         self.device.toggle_red_led(on=True)
+        self.device.toggle_green_led(on=False)
+
 
     def main_loop(self):
+        """This method contains the main logic of how the door controller
+        works.  It controlls all the lights, bells and reading of the 
+        RFID cards."""
+
+        self.reset()
+
         while True:
 
             # Wait for someone to swipe an RFID card.
             data = self.device.read_RFID()
+            if not data:
+            	continue
+            print data
 
             # If we got a valid authentication, then unlock the door.
             if self.validate_key_code(data):
@@ -69,6 +85,32 @@ class stub():
                 self.device.toggle_red_led()
                 self.device.toggle_green_led()
                 self.check_for_lock_request()
+
+
+            # We got a bad card so give 3 short beeps and flash the
+            # red light.
+            else:
+                self.device.toggle_red_led(on=False)
+                sleep(0.2)
+
+                self.device.toggle_red_led()
+                self.device.buzz(duration=0.2)
+                self.device.toggle_red_led()
+
+                sleep(0.2)
+
+                self.device.toggle_red_led()
+                self.device.buzz(duration=0.2)
+                self.device.toggle_red_led()
+
+                sleep(0.2)
+
+                self.device.toggle_red_led()
+                self.device.buzz(duration=0.2)
+                self.device.toggle_red_led()
+
+                sleep(0.2)
+                self.device.toggle_red_led()
 
 
     def check_for_lock_request(self):
@@ -99,12 +141,12 @@ class standalone(stub):
         """To initialize the stadalone door controller, you must pass
         it a libaccess database object along w/ the device."""
 
-        super().__init__(device)
+        stub.__init__(self, device)
         self.db = database
 
 
     def validate_key_code(self, data):
         """Check the key code against the libaccess user database."""
 
-        self.db.validate_key_code(data)
+        return self.db.validate_key_code(data)
 
