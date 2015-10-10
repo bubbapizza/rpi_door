@@ -6,10 +6,6 @@ from libaccess import database, doorController
 
 #### CONSTANTS ####
 
-# Override the buzzer pin for the RPi since we're using a rev2 RPi.
-# For all the other RPi driver settings, just use the defaults.
-RPI_REV2_BELL = 27
-
 # Here's the database where user credentials are stored.
 SQLITE_DB = "./database.db"
 
@@ -24,8 +20,9 @@ class hackf_door(doorController.standalone):
 
        # Set up the details of the door controller device and the 
        # database.
-       hackf_device = RasPi.rrgbdl(buzzer = RPI_REV2_BELL)
+       hackf_device = RasPi.rrgbdl()
        hackf_database = database.SQLite(SQLITE_DB)
+       # hackf_database = database.mySQL()
 
        # Initialize the standalone door controller.
        doorController.standalone.__init__(
