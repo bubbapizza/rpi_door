@@ -107,10 +107,6 @@ class stub():
 
                 self.device.toggle_red_led()
                 self.device.buzz(duration=0.2)
-                self.device.toggle_red_led()
-
-                sleep(0.2)
-                self.device.toggle_red_led()
 
 
     def check_for_lock_request(self):

@@ -21,7 +21,15 @@ Raspberry Pi's GPIO pins and serial port.
 
 It implements an RRGBDL (rfid/red/green/buzzer/door/lock-button)
 hardware API that the door controller uses.  The RRGBDL API has nothing
-to do with anything and is just an arbitrary API that I made up."""
+to do with anything and is just an arbitrary API that I made up.
+
+By default, the RRGBDL assumes we're using an RDM6300 RFID reader
+and a raspberry pi v2.
+
+TODO: 
+   * specify RPi version in RRGBDL API
+   * abstract out RFID drivers."""
+
 
 
 import serial
@@ -30,11 +38,21 @@ import switch
 
 #### CONSTANTS ####
 
+## Set up 125khz RFID ##
+
 # These values are specifically for the Parallax 28140 serial
 # RFID reader as described at http://www.parallax.com/product/28140
-RFID_NUM_BYTES = 10
-RFID_START_BYTE = 10
-RFID_STOP_BYTE = 13
+#
+# RFID_NUM_BYTES = 10
+# RFID_START_BYTE = 10
+# RFID_STOP_BYTE = 13
+
+# These values are for those cheap RDM6300 readers that you can find 
+# all over ebay.
+RFID_NUM_BYTES = 12
+RFID_START_BYTE = 2
+RFID_STOP_BYTE = 3
+
 
 ## Set up default values for the RPi ##
 
@@ -42,12 +60,13 @@ RFID_STOP_BYTE = 13
 RED = 24
 GREEN = 23
 DOOR = 25
-BELL = 21  # For RPi rev 1, pin is 21
+# BELL = 21  # For RPi rev 1
+BELL = 27  # For RPi rev 2
 LOCK_BUTTON = 17
 
 # Serial port settings
 PORT = "/dev/ttyAMA0"
-BAUD_RATE = 2400
+BAUD_RATE = 9600
 RFID_DEFAULT_TIMEOUT = 5
 
 
@@ -181,6 +200,7 @@ class rrgbdl():
             while self.serial_conn.inWaiting() > 0: 
 
                 rfidChr = self.serial_conn.read(1)
+                print rfidChr
     
                 # If we got a start byte, then start storing the code.
                 if ord(rfidChr) == RFID_START_BYTE:
@@ -192,10 +212,12 @@ class rrgbdl():
                 # characters to build a code.  Otherwise, we have junk.
                 elif ord(rfidChr) == RFID_STOP_BYTE:
                     if buildCode == True and \
-                            len(rfidCode) == RFID_NUM_BYTES:
+                        len(rfidCode) == RFID_NUM_BYTES:
 
                         # We have a valid code!!!! Return it!!
-                        self.lastRFID = rfidCode
+                        # NOTE: any digits after 10 are checksum digits
+                        #       so we strip them off.
+                        self.lastRFID = rfidCode[0:10]
                         return self.lastRFID
    
                     buildCode = False
