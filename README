@@ -1,3 +1,50 @@
-This is the door controller software used by the hackforge hackerspace
-in Windsor, ON, CANADA.  It is a work in progress and eventually will
-be able to handle many types of hardware and software interfaces.
+This door controller software was originally developed for the
+the Hackforge hackerspace in Windsor, ON, Canada.  It is a work in 
+progress and will eventually (hopefully) be able to handle many types 
+of hardware and software interfaces.
+
+
+=== Database ===
+
+The software currently uses a small SQL database with 2 tables for storing 
+users and RFID cards.  It uses SQLAlchemy and, if necessary, will 
+auto-create a SQLite database w/ the proper schema on startup.
+
+By default it uses SQLite but it also supports MySQL.  For now, database 
+tables must be populated by hand.  
+
+
+=== Hardware ===
+
+This software was written to run on a Raspberry Pi v2.  
+
+By default it assumes you have the following hardware hooked up
+to the corresponding RPi pins:
+
+    * pin 10 --> RDM6300 RFID reader TX output 
+    * pin 24 --> red LED 
+    * pin 23 --> green LED
+    * pin 27 --> piezo buzzer 
+    * pin 25 --> a relay that controls a door magnet or door strike
+    * pin 17 --> a button to re-lock the door
+
+
+=== Control Logic ===
+
+When the door controller starts up, it defaults the door relay to closed 
+(i.e. locked), the red light on, and the green light off.  
+
+The main loop waits for an RFID tag.  Once it gets a tag, it checks
+the database to see if the card is valid.  
+
+If the card is valid, the green light comes on for a couple seconds, 
+the buzzer sounds and the door unlocks.  Once the door is unlocked, it 
+sits and waits for the lock button to be pressed.  After the lock button 
+is pressed, it waits 5 seconds then re-locks the door.  
+
+If the card is bad, the red light flashes 3 times along w/ 3 beeps from 
+the buzzer and the door stays locked.
+
+
+Shawn Wilson
+Oct 2015
